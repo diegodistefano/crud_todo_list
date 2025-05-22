@@ -7,23 +7,43 @@ from models.task_model import Task
 db = SessionLocal()
 task=[]
 
-def get_all_tasks(db):
+def get_all_tasks():
     return db.query(Task).all()
 
-def create_task_bd(db, title: str, description: str = None, status: bool = False):
+
+def create_task_db(db, title: str, description: str = None, status: bool = False):
     task = Task(title=title, description=description, status=status)
     db.add(task)
     db.commit()
     db.refresh(task)
     return task
 
-def update_task_db(task):
+
+def get_task_by_id(id):
     try:
-        # task = db.query(Task).filter_by(id=id).first()
+        return db.query(Task).filter_by(id=id).first()
+    except Exception as e:
+        print("❌ Error al actualizar EL ID del controller get_task_by_id.", e)
+
+def update_status_db(id):
+    try:
+        task=get_task_by_id(id)
+        task.status = not task.status
         db.commit()
         db.refresh(task)
     except Exception as e:
-        print("❌ Error al actualizar del controller la tarea.", e)
+        print("❌ Error al actualizar EL ID del controller update_status_db.", e)
+
+
+
+
+def update_task_db(task_updated, task_id):
+    try:
+        task_updated = db.query(Task).filter_by(id=task_id).first()
+        db.commit()
+        db.refresh(task_updated)
+    except Exception as e:
+        print("❌ Error al actualizar la tarea del controller.", e)
 
 def delete_task_db():
     try:

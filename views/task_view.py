@@ -2,8 +2,8 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from controllers.task_controller import create_task_bd, get_all_tasks
-from controllers.task_controller import update_task_db, delete_task_db, close_db
+from controllers.task_controller import create_task_db, get_all_tasks, update_status_db
+from controllers.task_controller import update_task_db, delete_task_db, close_db, get_task_by_id
 from controllers.task_controller import task, db
 from models.task_model import Task
 
@@ -41,7 +41,7 @@ def display_create_task():
             "title":title,
             "description":description,
             "status":status})
-        create_task_bd(db, title, description, status)
+        create_task_db(db, title, description, status)
     except Exception as e:
         print("❌  Error al Crear la tarea.", e)
 
@@ -49,7 +49,7 @@ def show_tasks():
     try:
         try:
             print("\n=====🔹 LISTA DE TAREAS 🔹=====\n")
-            tasks = get_all_tasks(db)
+            tasks = get_all_tasks()
         except:
             print(f"❌ Error al mostrar las tareas.")
         if not tasks:
@@ -64,7 +64,6 @@ def show_tasks():
                     f"📃 Descripción: {description_str.ljust(50)} "
                     f"📌 Estado: {status_str.ljust(10)}"
                 )
-
         print("\n")           
     except Exception as e:
         print(f"❌ Error al mostrar las tareas: {e}")
@@ -73,7 +72,7 @@ def search_by_id():
     try:
         print("\n-------------------------------\n")
         search=int(input("🔎 Ingrese un ID: "))
-        tasks = get_all_tasks(db)
+        tasks = get_all_tasks()
         if not tasks:
             print("⚠️  No se encontró la tarea con ese ID.")
         else:
@@ -95,17 +94,21 @@ def update_task():
     try:
         try:
             task_id = search_by_id()
-            task = db.query(Task).filter_by(id=task_id).first()
         except:
             print("❌ Error al buscar un ID")
-        if task is None:
+            return
+        if task_id is None:
             print("⚠️  No se encontró la tarea con ese ID.")
             return
+       
+       
         print("\n=====🔹 ACTUALIZAR UNA TAREA 🔹=====")
+        
         while True:
             condition =input("❔ ¿Desea actualizar unicamente el Estado? (S/N): ")
             if condition.strip().upper() == "S":
-                task.status = not task.status
+                update_status_db(task_id)
+                print("\nSI FUNCIONO\n")
                 break
             elif condition.strip().upper() == "N":
                 task.title=input("\n👉 Ingresa el nuevo título de la tarea: ")
@@ -114,7 +117,6 @@ def update_task():
                 break
             else:
                 print("⚠️ Por favor, ingresa 'S' para sí o 'N' para no.") 
-        update_task_db(task)
         print("\n ✅ La tarea fue actualizada con exito.")
 
     except Exception as e:
