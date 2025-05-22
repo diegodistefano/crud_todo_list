@@ -10,7 +10,6 @@ task=[]
 def get_all_tasks():
     return db.query(Task).all()
 
-
 def create_task_db(db, title: str, description: str = None, status: bool = False):
     task = Task(title=title, description=description, status=status)
     db.add(task)
@@ -18,10 +17,9 @@ def create_task_db(db, title: str, description: str = None, status: bool = False
     db.refresh(task)
     return task
 
-
 def get_task_by_id(id):
     try:
-        return db.query(Task).filter_by(id=id).first()
+        return db.query(Task).filter(Task.id==id).first()
     except Exception as e:
         print("❌ Error al actualizar EL ID del controller get_task_by_id.", e)
 
@@ -34,16 +32,35 @@ def update_status_db(id):
     except Exception as e:
         print("❌ Error al actualizar EL ID del controller update_status_db.", e)
 
+# def update_task_db(task_id, title, description, status):
+#     try:
+#         task=get_task_by_id(task_id)
+#         print(task)
+#         task.title=title
+#         task.description=description
+#         task.status=status
+#         db.commit()
+#         db.refresh(task)
+#     except Exception as e:
+#         print("❌ Error al actualizar la tarea del controller.", e)
 
-
-
-def update_task_db(task_updated, task_id):
+def update_task_db(task_id, title, description, status):
     try:
-        task_updated = db.query(Task).filter_by(id=task_id).first()
+        task = get_task_by_id(task_id)
+        if not task:
+            print("⚠️ No se encontró la tarea con ese ID.")
+            return False
+            
+        task.title = title
+        task.description = description
+        task.status = status
+            
         db.commit()
-        db.refresh(task_updated)
+        db.refresh(task)
+        return True
     except Exception as e:
-        print("❌ Error al actualizar la tarea del controller.", e)
+        print(f"❌ Error al actualizar la tarea: {e}")
+        return False
 
 def delete_task_db():
     try:

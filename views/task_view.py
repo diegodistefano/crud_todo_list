@@ -99,9 +99,7 @@ def update_task():
             return
         if task_id is None:
             print("⚠️  No se encontró la tarea con ese ID.")
-            return
-       
-       
+            return       
         print("\n=====🔹 ACTUALIZAR UNA TAREA 🔹=====")
         
         while True:
@@ -111,16 +109,33 @@ def update_task():
                 print("\nSI FUNCIONO\n")
                 break
             elif condition.strip().upper() == "N":
-                task.title=input("\n👉 Ingresa el nuevo título de la tarea: ")
-                task.description=input("👉 Ingresa la nueva descripción: ")
-                task.status=ask_status_input("La tarea está finalizada?")   
+                current_task = get_task_by_id(task_id)
+                if not current_task:
+                    print(" No se pudo obtener la tarea actual.")
+                    return
+                title=input("\n👉 Ingresa el nuevo título de la tarea: ")
+                description=input("👉 Ingresa la nueva descripción: ")
+                status=ask_status_input("La tarea está finalizada?")
+                if update_task_db(task_id, title, description, status):
+                    print("\n ✅ La tarea fue actualizada con exito.")
+                else:
+                    print("❌ No se pudo actualizar la tarea.")
                 break
             else:
-                print("⚠️ Por favor, ingresa 'S' para sí o 'N' para no.") 
-        print("\n ✅ La tarea fue actualizada con exito.")
-
+                print("⚠️ Por favor, ingresa 'S' para sí o 'N' para no.")
     except Exception as e:
-        print("❌ Error al actualizar la tarea del view.", e)
+        print(f"❌ Error al actualizar la tarea: {e}")
+
+
+
+    #             update_task_db(task_id, title, description, status)   
+    #             break
+    #         else:
+    #             print("⚠️ Por favor, ingresa 'S' para sí o 'N' para no.") 
+    #     print("\n ✅ La tarea fue actualizada con exito.")
+
+    # except Exception as e:
+    #     print("❌ Error al actualizar la tarea del view.", e)
 
 
 def delete_task():
