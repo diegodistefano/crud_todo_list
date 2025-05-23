@@ -3,12 +3,13 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from database.db import SessionLocal
 from models.task_model import Task
+from sqlalchemy import asc
 
 db = SessionLocal()
 task=[]
 
 def get_all_tasks():
-    return db.query(Task).all()
+    return db.query(Task).order_by(Task.id.asc()).all()
 
 def create_task_db(db, title: str, description: str = None, status: bool = False):
     task = Task(title=title, description=description, status=status)
@@ -25,36 +26,28 @@ def get_task_by_id(id):
 
 def update_status_db(id):
     try:
-        task=get_task_by_id(id)
+        task = get_task_by_id(id)
+        if not task:
+            print("⚠️ No se encontró la tarea con ese ID en update_status_db.")
+            return False
+            
         task.status = not task.status
         db.commit()
         db.refresh(task)
+        return True
     except Exception as e:
-        print("❌ Error al actualizar EL ID del controller update_status_db.", e)
-
-# def update_task_db(task_id, title, description, status):
-#     try:
-#         task=get_task_by_id(task_id)
-#         print(task)
-#         task.title=title
-#         task.description=description
-#         task.status=status
-#         db.commit()
-#         db.refresh(task)
-#     except Exception as e:
-#         print("❌ Error al actualizar la tarea del controller.", e)
+        print(f"❌ Error al actualizar el estado: {e}")
+        return False
 
 def update_task_db(task_id, title, description, status):
     try:
         task = get_task_by_id(task_id)
         if not task:
             print("⚠️ No se encontró la tarea con ese ID.")
-            return False
-            
+            return False     
         task.title = title
         task.description = description
-        task.status = status
-            
+        task.status = status  
         db.commit()
         db.refresh(task)
         return True
@@ -62,9 +55,9 @@ def update_task_db(task_id, title, description, status):
         print(f"❌ Error al actualizar la tarea: {e}")
         return False
 
-def delete_task_db():
+def delete_task_db(task_id):
     try:
-        task = db.query(Task).filter_by(id=id).first()
+        task = db.query(Task).filter_by(id=task_id).first()
         db.delete(task)
         db.commit()
     except Exception as e:

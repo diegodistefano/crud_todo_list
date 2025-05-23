@@ -8,18 +8,28 @@ from controllers.task_controller import task, db
 from models.task_model import Task
 
 menu = [
-    "1. ✏️ Crear tarea",
+    "1. ✏️  Crear tarea",
     "2. 📄 Ver todas las tareas",
     "3. 🔍 Ver tarea por ID",
     "4. 🔄 Actualizar tarea",
-    "5. 🗑️ Eliminar tarea",
+    "5. 🗑️  Eliminar tarea",
     "6. 🚪 Salir"
 ]
 
 def init_menu():
-    print("\n=====📋 BIENVENID@S AL GESTOR DE TAREAS 📋=====")
-    print("\n===🔹 Ya no podras olvidar tus pendientes 🔹===\n")
+    print(
+        f"\n=====📋 BIENVENID@S AL GESTOR DE TAREAS 📋====="
+        f"\n===🔹 Ya no podras olvidar tus pendientes 🔹===\n"
+        )
     display_menu()
+
+def print_task(task, description_str, status_str ):
+    print(
+            f"  🆔 ID: {str(task.id).ljust(6)} "
+            f"📝 Título: {task.title.ljust(25)} "
+            f"📃 Descripción: {description_str.ljust(50)} "
+            f"📌 Estado: {status_str.ljust(10)}"
+        )
 
 def ask_status_input(ask_input):
     while True:
@@ -42,6 +52,8 @@ def display_create_task():
             "description":description,
             "status":status})
         create_task_db(db, title, description, status)
+        print("\n=====🔹 CREAR NUEVA TAREA 🔹=====")
+
     except Exception as e:
         print("❌  Error al Crear la tarea.", e)
 
@@ -58,13 +70,7 @@ def show_tasks():
             for task in tasks:
                 status_str = "Finalizada" if task.status else "Pendiente"
                 description_str = task.description if task.description else "N/A"
-                print(
-                    f"  🆔 ID: {str(task.id).ljust(6)} "
-                    f"📝 Título: {task.title.ljust(25)} "
-                    f"📃 Descripción: {description_str.ljust(50)} "
-                    f"📌 Estado: {status_str.ljust(10)}"
-                )
-        print("\n")           
+                print_task(task, description_str, status_str)           
     except Exception as e:
         print(f"❌ Error al mostrar las tareas: {e}")
 
@@ -74,21 +80,26 @@ def search_by_id():
         search=int(input("🔎 Ingrese un ID: "))
         tasks = get_all_tasks()
         if not tasks:
-            print("⚠️  No se encontró la tarea con ese ID.")
-        else:
-            for task in tasks:
-                if (search == task.id):
-                    status_str = "Finalizada" if task.status else "Pendiente"
-                    description_str = task.description if task.description else "N/A"
-                    print(
-                        f"  🆔 ID: {str(task.id).ljust(6)} "
-                        f"📝 Título: {task.title.ljust(25)} "
-                        f"📃 Descripción: {description_str.ljust(50)} "
-                        f"📌 Estado: {status_str.ljust(10)}"
-                    )
-        return task.id
-    except:
-        print("❌  Error al buscar una tarea.")
+            print("⚠️  No hay tareas registradas.")
+            return
+        
+        # found_task = None
+        for task in tasks:
+            if (search == task.id):
+                status_str = "Finalizada" if task.status else "Pendiente"
+                description_str = task.description if task.description else "N/A"
+                print(f"\n{print_task(task, description_str, status_str)}\n")
+                found_task = task
+                break
+        
+        # if found_task is None:
+        #     print("⚠️  No se encontró la tarea con ese ID.")
+        #     return
+            
+        return found_task.id
+    except Exception as e:
+        print(f"❌  Error al buscar una tarea: {e}")
+        return None
 
 def update_task():
     try:
@@ -105,8 +116,10 @@ def update_task():
         while True:
             condition =input("❔ ¿Desea actualizar unicamente el Estado? (S/N): ")
             if condition.strip().upper() == "S":
-                update_status_db(task_id)
-                print("\nSI FUNCIONO\n")
+                if update_status_db(task_id):
+                    print("\n✅ El estado de la tarea fue actualizado con éxito.\n")
+                else:
+                    print("\n❌ No se pudo actualizar el estado de la tarea.\n")
                 break
             elif condition.strip().upper() == "N":
                 current_task = get_task_by_id(task_id)
@@ -126,22 +139,15 @@ def update_task():
     except Exception as e:
         print(f"❌ Error al actualizar la tarea: {e}")
 
-
-
-    #             update_task_db(task_id, title, description, status)   
-    #             break
-    #         else:
-    #             print("⚠️ Por favor, ingresa 'S' para sí o 'N' para no.") 
-    #     print("\n ✅ La tarea fue actualizada con exito.")
-
-    # except Exception as e:
-    #     print("❌ Error al actualizar la tarea del view.", e)
-
-
 def delete_task():
+    task_id = search_by_id()
+    if task_id is None:
+        print("⚠️  No se encontró la tarea con ese ID.")
+        return       
     try:
-        delete_task_db()
-        print("✅ Tarea eliminada con éxito.")
+        delete_task_db(task_id)
+        print("\n✅ Tarea eliminada con éxito.\n")
+
     except Exception as e:
         print("❌ Error en delete:", e)
 
@@ -168,7 +174,7 @@ def display_menu():
             case 4:
                 update_task()
             case 5:
-                delete_task_db()
+                delete_task()
             case 6:
                 exit_task()
             case _:
@@ -180,16 +186,3 @@ def display_menu():
             display_menu()
 
 init_menu()
-
-
-#TAREAS PENDIENTES (MINI-JIRA)
-
-# MODIFICAR STATUS SOLO V
-# SALIR DEL PROGRAMA v
-# CERRAR LA BD v
-# contextmanager de Python (investigar)
-# MODULARIZAR FUNCIONES v
-# COMENTARIOS SEGUN ENUNCIADO
-# persistencia de ID
-
-#Que metodos corresponden a controller y cuales a models
