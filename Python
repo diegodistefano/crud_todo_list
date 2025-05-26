@@ -1,0 +1,38 @@
+# 📌 PYTHON COLLECTIONS CHEATSHEET 02
+
+# 🟥 DICCIONARIO (dict): Colección de pares clave:valor
+persona = {
+    "nombre": "Diego",
+    "edad": 30,
+    "país": "🇦🇷"
+}
+
+# 👀 Mostrar todo
+print("🧾 Diccionario:", persona)
+
+# ✏️ Modificar valor
+persona["edad"] = 31
+
+# ➕ Agregar nueva clave:valor
+persona["profesion"] = "Desarrollador"
+
+# ❌ Eliminar clave específica
+del persona["país"]
+
+# 🧹 Vaciar el diccionario
+persona.clear()
+
+# 🟨 COLA (Queue) usando collections.deque
+from collections import deque
+cola = deque()
+cola.append("👤 Cliente 1")  # ➕ Agrega al final
+cola.append("👤 Cliente 2")
+print("🧾 Cola:", cola)
+cola.popleft()  # ❌ Atiende y elimina el primero
+
+# 🟧 PILA (Stack) usando list
+pila = []
+pila.append("🧱 Bloque 1")
+pila.append("🧱 Bloque 2")
+print("📦 Pila:", pila)
+pila.pop()  # ❌ Saca el último agregado
